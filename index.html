@@ -106,6 +106,10 @@
             };
         }
 
+        function mensaje(v_id){
+            alert("Mensaje de prueba ID:" + v_id);
+        }
+
         $(document).ready(function () {
             $.ajax({
                 url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/option",
@@ -113,19 +117,12 @@
                 dataType: "json",
                 success: function (data) {
                     let result = data.result;
-                    let content = ``;
+                    let content = '';
                     let index = 0;
                     result.forEach(element => {
                         index++;
-                        content += `
-                            <li class="w-100">
-                                <button class="nav-link px-0 bi-${index}-square-fill" 
-                                        id="medicion${element.title}" 
-                                        onclick="manejarClicMenu('${element.resource_path}', '#contenido')">
-                                    <span class="d-none d-sm-inline"> Medici&oacute;n ${element.title}</span>
-                                </button>
-                            </li>
-                        `;
+                        //content += "<li class= \"w-100\"> <button class=\"nav-link px-0 bi-${index}-square-fill\" id=\"medicion${element.title}\" onclick=\"manejarClicMenu('${element.resource_path}', '#contenido')\"> <span class=\"d-none d-sm-inline\"> Medici&oacute;n ${element.title}</span></button></li>";
+                        content += "<li class= \"w-100\"> <button class=\"nav-link px-0 bi-${index}-square-fill\" id=\"medicion${element.title}\" onclick=\"mensaje('${element.resource_path}')\"> <span class=\"d-none d-sm-inline\"> Medici&oacute;n ${element.title}</span></button></li>";
                     });
 
                     document.getElementById('submenu1').innerHTML = content;
