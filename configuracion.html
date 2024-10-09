@@ -1,0 +1,112 @@
+<html>
+
+<body>
+    <div class="container-fluid">
+        <div class="row mb-1 text-muted pt-4">
+            <h2>Configuraci&oacute;n</h2>
+        </div>
+        <div class="row mb-3 text-secondary">
+            <h5>Orquestador</h5>
+        </div>
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-sm-12 offset-lg-1 offset-md-1">
+                <div class="row pb-2">
+                    <div class="col-12">
+                        <div class="card border-light" style="border-radius: 15px;">
+                            <div class="card-body ps-5" id="list-config">
+
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="crearConfiguracion()">Crear configuracion</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/configuration",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data.result);
+                    items = data.result;
+                    putItemsList(items);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        });
+
+        function putItemsList(items) {
+            content = ``;
+            items.forEach(item => {
+                console.log(item);
+                console.log(item.id);
+                content += `
+                <div class="mb-1 pt-3 row align-items-center">
+                    <input type="hidden" class="form-control" id="id" name="period" value="${item.id}" placeholder="0">
+                    <label for="${item.name}Input" class="col-sm-3 col-form-label">${item.name}</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="${item.name}Input" placeholder="" value="${item.value}">
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-primary" onclick="actualizarConfiguracion(${item.id}, '${item.name}')">Guardar</button>
+                    </div>
+                </div>
+                <hr>
+                `
+            });
+
+            document.getElementById('list-config').innerHTML = content;
+        }
+
+        function actualizarConfiguracion(id, name) {
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/configuration",
+                type: "PUT",
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        id: id,
+                        value: document.getElementById(`${name}Input`).value
+                    }
+                ),
+                success: function (data) {
+                    alert("Elemento de configuracion actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+        function crearConfiguracion() {
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/configuration",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        name: 'dummy',
+                        value: 'dummyValue',
+                        treatment_as: 'STRING'
+                    }
+                ),
+                success: function (data) {
+                    alert("Elemento de configuracion actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

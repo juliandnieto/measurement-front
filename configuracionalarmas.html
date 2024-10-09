@@ -1,0 +1,159 @@
+<html>
+
+<body>
+    <div class="container-fluid">
+        <div class="row mb-1 text-muted pt-4">
+            <h2>Configuraci&oacute;n</h2>
+        </div>
+        <div class="row mb-3 text-secondary">
+            <h5>Alarmas</h5>
+        </div>
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-sm-12 offset-lg-1 offset-md-1">
+                <div class="row pb-2">
+                    <div class="col-12">
+                        <div class="card border-light" style="border-radius: 15px;">
+                            <div class="card-body ps-5" id="alarmconfig-list">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-8 col-md-8 col-sm-12 offset-lg-2 offset-md-1 text-center">
+                <button type="button" class="btn btn-primary" onclick="crearConfiguracionAlarmas()">Crear configuracion
+                    alarma</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/alarmDefinition",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    items = data.result;
+                    putItemsList(items);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        });
+
+        function putItemsList(items) {
+            content = ``;
+            items.forEach(item => {
+                content += `
+                        <input type="hidden" class="form-control" id="id" name="id" value="${item.id}" placeholder="0">
+
+                        <div class="row mb-3 text-secondary">
+                            <label class="col-sm-3 col-form-label">Tipo de medida</label>
+                            <div class="col-sm-3">
+                                <select class="form-select" aria-label="Default position" id="${item.id}measure_type" name="${item.id}measure_type" placeholder="" value="${item.measure_type}">
+                                    <option value="ISOLATION">AISLAMIENTO</option>
+                                    <option value="RESISTANCE">RESISTENCIA</option>
+                                    <option value="PRESSURE">PRESION</option>
+                                    <option value="TEMPERATURA">TEMPERATURA</option>
+                                    <option value="VIBRATION">VIBRACION</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 text-secondary">
+                            <label class="col-sm-3 col-form-label">Valor establecido para alarma</label>
+                            <div class="col-sm-3">
+                                <input type="number" class="form-control" name="${item.id}config_value" id="${item.id}config_value" placeholder="" value="${item.config_value}">
+                            </div>
+
+                            <label class="col-sm-3 col-form-label">Tipo de alarma</label>
+                            
+                            <div class="col-sm-3">
+                                <select class="form-select" aria-label="Default position" name="${item.id}alarm_type" id="${item.id}alarm_type" placeholder="" value="${item.alarm_type}">
+                                    <option value="DESVEST">DESVEST</option>
+                                    <option value="LOWER_THAN">LOWER_THAN</option>
+                                    <option value="GREATER_THAN">GREATER_THAN</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="row mb-3 text-secondary">
+                            <label class="col-sm-3 col-form-label">Ruta de sonido</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="${item.id}sound_path" id="${item.id}sound_path" placeholder="" value="${item.sound_path}">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-sm-3 offset-sm-3">
+                                <button class="btn btn-primary" onclick="actualizarConfiguracionAlarmas(${item.id})">Guardar</button>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                    `
+            });
+            document.getElementById('alarmconfig-list').innerHTML = content;
+        }
+
+        function actualizarConfiguracionAlarmas(id) {
+            const measureType = document.getElementById(`${id}measure_type`).value;
+            const configValue = document.getElementById(`${id}config_value`).value;
+            const alarmType = document.getElementById(`${id}alarm_type`).value;
+            const soundPath = document.getElementById(`${id}sound_path`).value;
+
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/alarmDefinition",
+                type: "PUT",
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        id: id,
+                        measure_type: measureType,
+                        new_value: configValue,
+                        new_alarm_type: alarmType,
+                        new_sound_path: soundPath
+                    }
+                ),
+                success: function (data) {
+                    alert("Elemento de configuracion de alarma actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+        function crearConfiguracionAlarmas() {
+
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/alarmDefinition",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    value: 22,
+                    alarm_type: 'LOWER_THAN',
+                    measure_type: 'ISOLATION',
+                    sound_path: 'dummy_path'
+                }),
+                success: function (data) {
+                    alert("Elemento de configuracion de alarma actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

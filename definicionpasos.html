@@ -1,0 +1,199 @@
+<html>
+
+<body>
+    <div class="container-fluid">
+        <div class="row mb-1 text-muted pt-4">
+            <h2>Duraci&oacute;n Mediciones</h2>
+        </div>
+        <div class="row mb-3 text-secondary">
+            <h5></h5>
+        </div>
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-sm-12 offset-lg-1 offset-md-1">
+                <div class="row pb-2">
+                    <!-- botonera -->
+                    <div class="btn-group" role="group" aria-label="Refrescar/Comenzar/Detener">
+                        <button type="button" class="btn btn-primary" onclick="startMeasurementLoop()">
+                            <i class="bi bi-play"></i> Comenzar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="stopMeasurementLoop()">
+                            <i class="bi bi-pause"></i> Detener
+                        </button>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-light" style="border-radius: 15px;">
+                            <div class="card-body ps-3" id="stepdefinition-list">
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-8 col-md-8 col-sm-12 offset-lg-2 offset-md-1 text-center">
+                <button type="button" class="btn btn-primary" onclick="crearDefinicionPasos()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/worker/stepDefinition",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data.result);
+                    console.log('id: ' + data.result[0]['id']);
+                    result = data.result;
+                    putItemsList(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        });
+
+        function putItemsList(items) {
+            content = ``;
+            items.forEach(item => {
+                content += `
+                        <input type="hidden" class="form-control" id="id" name="id" value="${item.id}" placeholder="0">
+
+                        <div class="row mb-3 text-secondary">
+                            <div class="col-sm-3">
+                                <select class="form-select" aria-label="Default position" name="${item.id}position" id="${item.id}position" value="${item.position}">
+                                    <option value="FIRST">PRIMERO</option>
+                                    <option value="SECOND">SEGUNDO</option>
+                                    <option value="THIRD">TERCERO</option>
+                                </select>
+                            </div>
+
+                            <span class="col-sm-3 col-form-label">Duración (min)</span>
+                            <div class="col-sm-2">
+                                <input type="number" class="form-control" id="${item.id}duration" name="${item.id}duration" value="${item.id}" placeholder="0">
+                            </div>
+
+                            <span class="col-sm-3 col-form-label">Periodo (seg)</span>
+                            <div class="col-sm-2">
+                                <input type="number" class="form-control" id="${item.id}period" name="${item.id}period" value="${item.period}" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 text-secondary">
+                            <span class="col-sm-3 col-form-label">Espera (min)</span>
+                            <div class="col-sm-2">
+                                <input type="number" class="form-control" id="${item.id}lead" name="${item.id}lead" value="${item.lead}" placeholder="0">
+                            </div>
+
+                            <div class="col-sm-3">
+                                <select class="form-select" aria-label="Sensor type" id="${item.id}sensor_type" name="${item.id}sensor_type">
+                                    <option value="ISO">ISO</option>
+                                    <option value="RESISTENCIA">RES</option>
+                                    <option value="WELL">WELL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-sm-3 offset-sm-3">
+                                <button class="btn btn-primary" onclick="actualizarDefinicionPasos(${item.id})">Guardar</button>
+                            </div>
+                        </div>
+
+                        <hr>
+                    `
+            });
+
+            document.getElementById('stepdefinition-list').innerHTML = content;
+        }
+
+        function actualizarDefinicionPasos(id) {
+            const position = document.getElementById(`${id}position`).value;
+            const duration = document.getElementById(`${id}duration`).value;
+            const period = document.getElementById(`${id}period`).value;
+            const lead = document.getElementById(`${id}lead`).value;
+            const sensorType = document.getElementById(`${id}sensor_type`).value;
+
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/worker/stepDefinition",
+                type: "PUT",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    id: id,
+                    position: position,
+                    duration: duration,
+                    period: period,
+                    lead: lead,
+                    sensor_type: sensorType
+                }),
+                success: function (data) {
+                    alert("Elemento de definicion de paso actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+        function crearDefinicionPasos() {
+
+            $.ajax({
+                url: "https://e10a34d8-df4e-472d-8424-c1cc68695f2d.mock.pstmn.io/worker/stepDefinition",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify(
+                    {
+                        position: 'FIRST',
+                        duration: 1,
+                        period: 25,
+                        lead: 1,
+                        sensor_type: 'WELL'
+                    }
+                ),
+                success: function (data) {
+                    alert("Elemento de definicion de paso actualizado.");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+        function startMeasurementLoop() {
+            $.ajax({
+                url: "http://localhost:8001/startMeasurementLoop",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    alert('Accion completada');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+        function stopMeasurementLoop() {
+            $.ajax({
+                url: "http://localhost:8001/stopMeasurementLoop",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    alert('Accion completada');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al recuperar los datos del backend:", error);
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
